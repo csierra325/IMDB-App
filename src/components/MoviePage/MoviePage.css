@@ -107,3 +107,8 @@ input {
   border-top: 2px solid var(--light);
   border-bottom: 2px solid var(--light);
 }
+
+.error-container{
+  width: 100%;
+  padding: 1rem;
+}

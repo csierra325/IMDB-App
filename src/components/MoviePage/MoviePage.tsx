@@ -16,45 +16,47 @@ const MoviePage: React.FC = () => {
 
   const getMovieInfo = async () => {
     setClicked(false);
-    const res = await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-by-title&title=${userInput}`, {
+    setErrorMessage('');
+    setMovieDetals({});
+    await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-by-title&title=${userInput}`, {
       method: "GET",
       headers: {
         "x-rapidapi-key": process.env.REACT_APP_RAPIDAPI_KEY as string,
         "x-rapidapi-host": process.env.REACT_APP_RAPIDAPI_HOST as string,
       }
     })
-    if (!res.ok) {
-      const error = await res.text();
-      console.log(error);
-      setErrorMessage('Im Sorry We Could Not Find That Title')
-    }
-    const data = await res.json();
-    if (data) {
-      const newArr = data.movie_results.map((res: string[]) => {
-        return res
+      .then(res => res.json())
+      .then((data) => {
+        console.log(data);
+        const newArr = data.movie_results.map((res: string[]) => {
+          return res
+        })
+        setMovieTitles(newArr);
       })
-      setMovieTitles(newArr);
-    };
+      .catch(err => {
+        console.error(err);
+        setErrorMessage('We cannot process your request at this time')
+      });
   }
 
   const getMovieDetails = async (titleId: string) => {
     setClicked(true);
-    const res = await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movie-details&imdb=${titleId}`, {
+    await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movie-details&imdb=${titleId}`, {
       "method": "GET",
       "headers": {
         "x-rapidapi-key": process.env.REACT_APP_RAPIDAPI_KEY as string,
         "x-rapidapi-host": process.env.REACT_APP_RAPIDAPI_HOST as string,
       }
     })
-    if (!res.ok) {
-      const error = await res.text();
-      console.log(error);
-    }
-    const data = await res.json();
-    if (data) {
-      console.log(data);
-      setMovieDetals(data);
-    }
+      .then(res => res.json())
+      .then((data) => {
+        console.log(data);
+        setMovieDetals(data)
+      })
+      .catch(err => {
+        console.error(err);
+        setErrorMessage('We cannot process your request at this time')
+      });
   }
 
   return (
@@ -82,12 +84,10 @@ const MoviePage: React.FC = () => {
             </div>
           })}
         </div>
-
-        {errorMessage.length > 1 && <div>{errorMessage}</div>}
-
-        {clicked &&
+        {errorMessage.length > 1 && <div className="error-container">{errorMessage}</div>}
+        {clicked && <div className="btn back" onClick={getMovieInfo}> Back To Titles</div>}
+        {clicked && movieDetails.title &&
           <>
-            <div className="btn back" onClick={getMovieInfo}> Back To Titles</div>
             <div className="result-container">
               <div className="title">{movieDetails.title}</div>
               <div className="detail">Year: {movieDetails.year}</div>
