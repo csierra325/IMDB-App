@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { IMovieDetails, IMovieTitles } from '../../Interfaces';
 import './MoviePage.css';
 import sleepingCat from '../../images/sleepyCat.gif';
+import placeholder from '../../images/moviePlaceholder.png';
 
 const MoviePage: React.FC = () => {
   const [movieTitles, setMovieTitles] = useState<IMovieTitles[]>([]);
@@ -10,6 +11,7 @@ const MoviePage: React.FC = () => {
   const [userInput, setUserInput] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [clicked, setClicked] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -17,6 +19,7 @@ const MoviePage: React.FC = () => {
   }
 
   const getMovieInfo = async () => {
+    setLoading(true);
     setClicked(false);
     setErrorMessage('');
     setMovieDetails({});
@@ -29,16 +32,18 @@ const MoviePage: React.FC = () => {
     })
       .then(res => res.json())
       .then((data) => {
-        console.log(data);
         const newArr = data.movie_results.map((res: string[]) => {
-          return res
+          return res;
         })
         setMovieTitles(newArr);
       })
       .catch(err => {
         console.error(err);
         setErrorMessage('We cannot process your request at this time')
-      });
+      })
+      .finally(() => {
+        setLoading(false);
+      })
   }
 
   const getMovieDetails = async (titleId: string) => {
@@ -56,19 +61,22 @@ const MoviePage: React.FC = () => {
         console.log(data);
         setMovieDetails(data);
       })
-      .then(() => {
-        fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-images-by-imdb&imdb=${titleId}`, {
-          "method": "GET",
-          "headers": {
-            "x-rapidapi-key": "Iet2yU2P8pmshxLBr3hzsEtNaWs7p1rJV9vjsniNKetVL1RRb3",
-            "x-rapidapi-host": "movies-tvshows-data-imdb.p.rapidapi.com"
-          }
-        })
-          .then(res => res.json())
-          .then((data) => {
-            console.log(data.poster);
-            setMovieImage(data.poster);
-          })
+      .catch(err => {
+        console.error(err);
+        setErrorMessage('We cannot process your request at this time')
+      });
+
+    await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-images-by-imdb&imdb=${titleId}`, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": process.env.REACT_APP_RAPIDAPI_KEY as string,
+        "x-rapidapi-host": process.env.REACT_APP_RAPIDAPI_HOST as string,
+      }
+    })
+      .then(res => res.json())
+      .then((data) => {
+        console.log('poster' + data.poster);
+        setMovieImage(data.poster);
       })
       .catch(err => {
         console.error(err);
@@ -76,14 +84,11 @@ const MoviePage: React.FC = () => {
       });
   }
 
-
-
   return (
     <div className="content-area">
       <div className="movie-container">
         <div className="movie-subcontainer">
-
-          <div className="title">Movie Finder</div>
+          <div className="title">Movie Mania</div>
           {!clicked &&
             <>
               <div className="subtitle">Search Your Movie Below</div>
@@ -93,7 +98,7 @@ const MoviePage: React.FC = () => {
                   onChange={handleInput}
                   value={userInput}
                 />
-                <div className="btn" onClick={getMovieInfo}>Submit</div>
+                <button className="btn" disabled={loading} onClick={getMovieInfo}>Submit</button>
               </div>
             </>
           }
@@ -109,16 +114,21 @@ const MoviePage: React.FC = () => {
         </div>}
         {clicked && <div className="btn back" onClick={getMovieInfo}> Back To Titles</div>}
         {clicked && movieDetails.title &&
-          <>
-            <div className="result-container">
-              <div className="title">{movieDetails.title}</div>
-              <img src={movieImage} alt="movie poster" />
-              <div className="detail">Year: {movieDetails.year}</div>
-              <div className="detail">Directors: {movieDetails.directors}</div>
-              <div className="detail">Description: {movieDetails.description}</div>
-              <div className="detail">Countries: {movieDetails.countries}</div>
+          <div className="result-container">
+            {movieImage.length > 1 && <img src={movieImage} alt="movie poster" />}
+            {movieImage.length < 1 && <img src={placeholder} alt="movie poster" />}
+            <div className="result-details">
+              <div className="detail"><span className="result-title">Title:</span> {movieDetails.title}</div>
+              <div className="detail-unborder"><span className="result-title">Year: </span>{movieDetails.year}</div>
+              <div className="detail"><span className="result-title">Genres: </span>{movieDetails.genres?.map((genre) => <span>{genre}, </span>)}</div>
+              <div className="detail-unborder"><span className="result-title">Directors: </span>{movieDetails.directors?.map((director) => <span>{director}, </span>)}</div>
+              <div className="detail"><span className="result-title">Description:</span> {movieDetails.description}</div>
+              <div className="detail-unborder"><span className="result-title">Countries:</span> {movieDetails.countries?.map((country) => <span>{country}, </span>)}</div>
+              <div className="detail-unborder"><span className="result-title">Lanuages:</span> {movieDetails.language?.map((language) => <span>{language}, </span>)}</div>
+              <div className="detail-unborder"><span className="result-title">Release Date:</span> {movieDetails.release_date}</div>
+
             </div>
-          </>
+          </div>
         }
       </div>
     </div>

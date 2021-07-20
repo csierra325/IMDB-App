@@ -1,15 +1,15 @@
 :root {
   --light: #EEEEEE;
-  --dark: #2c2c2c;
-  --grey: rgb(20, 20, 20, 0.7);
-  --green: #0F044C;
+  --grey: #2c2c2c;
+  --dark: rgb(20, 20, 20, 0.7);
+  --darkblue: #12055c;
 }
 
 body{
   background-size: auto 500px;
   background-repeat: no-repeat;
   background: url('../../images/popcornDrink.png') bottom right no-repeat fixed;
-  background-color: var(--dark);
+  background-color: var(--grey);
   height: 100vh;
 }
 
@@ -18,12 +18,13 @@ ul {
 }
 
 .btn {
-  background-color: var(--green);
+  background-color: var(--darkblue);
   padding: 15px;
   color: var(--light);
   cursor: pointer;
   width: 15%;
-  border-radius: 4px
+  border-radius: 4px;
+  border: none;
 }
 
 .btn.back{ 
@@ -47,10 +48,18 @@ ul {
 }
 
 .result-container {
-  margin: 2rem auto;
-  background: var(--grey);
+  display: inline-flex;
+  padding-top: 2rem;
+}
+
+.result-details {
+  background: var(--dark);
   color: var(--light);
   padding: 2rem;
+}
+
+.result-title {
+  font-weight: bold;
 }
 
 .movie-container {
@@ -90,7 +99,7 @@ input {
   cursor: pointer;
   background: #141414;
   border-radius: 5px;
-  border: var(--green) solid 3px;
+  border: var(--darkblue) solid 3px;
   text-align: center;
   margin-top: 6px;
 }
@@ -106,6 +115,11 @@ input {
   border-bottom: 2px solid var(--light);
 }
 
+.detail-unborder {
+  text-align: left;
+  padding: 0.5rem;
+}
+
 .error-container {
   width: 100%;
   padding: 1rem;
@@ -116,6 +130,6 @@ padding: 1rem;
 }
 
 img {
-  height: 300px;
+  height: 550px;
   width: auto;
 }
