@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import './MoviePage.css';
 
 const MoviePage: React.FC = () => {
   const [movieData, setMovieData] = useState<any>([]);
@@ -55,32 +55,40 @@ const MoviePage: React.FC = () => {
     }
   }
 
-
   return (
-    <>
-      <div>Welcome</div>
-      <div>Please Search Your Movie Below</div>
-      <input
-        type="text"
-        onChange={handleInput}
-        value={userInput}
-      />
-      <div onClick={getMovieInfo}>Submit</div>
-      {errorMessage.length > 1 && <div>{errorMessage}</div>}
-      {movieData && !clicked && movieData.map((movie: any) => {
-        return <ul id={movie.imdb_id} key={movie.imdb_id} onClick={((e) => getMovieDetails(e.target))}>{movie.title}</ul>
-      })}
-      {clicked &&
-        <div>
-          <div>Title: {movieDetails.title}</div>
-          <div>Year: {movieDetails.year}</div>
-          <div>Directors: {movieDetails.directors}</div>
-          <div>Description: {movieDetails.description}</div>
-          <div>Countries: {movieDetails.countries}</div>
-          <div></div>
+    <div className="content-area">
+      <div className="movie-container">
+        <div className="header">
+          <div className="title">Movie Finder</div>
+          <div className="subtitle">Search Your Movie Below</div>
+          <div className="search-container">
+            <input
+              type="text"
+              onChange={handleInput}
+              value={userInput}
+            />
+            <div className="btn" onClick={getMovieInfo}>Submit</div>
+          </div>
+          {movieData && !clicked && movieData.map((movie: any) => {
+            return <div className="movie-title">
+              <ul id={movie.imdb_id} key={movie.imdb_id} onClick={((e) => getMovieDetails(e.target))}>{movie.title}</ul>
+            </div>
+          })}
         </div>
-      }
-    </>
+
+        {errorMessage.length > 1 && <div>{errorMessage}</div>}
+
+        {clicked &&
+          <div className="result-container">
+            <div>Title: {movieDetails.title}</div>
+            <div>Year: {movieDetails.year}</div>
+            <div>Directors: {movieDetails.directors}</div>
+            <div>Description: {movieDetails.description}</div>
+            <div>Countries: {movieDetails.countries}</div>
+          </div>
+        }
+      </div>
+    </div>
   )
 }
 
