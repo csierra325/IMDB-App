@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { IMovieDetails, IMovieTitles } from '../../Interfaces';
 import './MoviePage.css';
 
 const MoviePage: React.FC = () => {
-  const [movieData, setMovieData] = useState<any>([]);
-  const [movieDetails, setMovieDetals] = useState<any>({});
+  const [movieTitles, setMovieTitles] = useState<IMovieTitles[]>([]);
+  const [movieDetails, setMovieDetals] = useState<Partial<IMovieDetails>>({});
   const [userInput, setUserInput] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [clicked, setClicked] = useState<boolean>(false);
@@ -16,10 +17,10 @@ const MoviePage: React.FC = () => {
   const getMovieInfo = async () => {
     setClicked(false);
     const res = await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-by-title&title=${userInput}`, {
-      "method": "GET",
-      "headers": {
-        "x-rapidapi-key": "Iet2yU2P8pmshxLBr3hzsEtNaWs7p1rJV9vjsniNKetVL1RRb3",
-        "x-rapidapi-host": "movies-tvshows-data-imdb.p.rapidapi.com"
+      method: "GET",
+      headers: {
+        "x-rapidapi-key": process.env.REACT_APP_RAPIDAPI_KEY as string,
+        "x-rapidapi-host": process.env.REACT_APP_RAPIDAPI_HOST as string,
       }
     })
     if (!res.ok) {
@@ -29,20 +30,20 @@ const MoviePage: React.FC = () => {
     }
     const data = await res.json();
     if (data) {
-      const newArr = data.movie_results.map((res: any) => {
+      const newArr = data.movie_results.map((res: string[]) => {
         return res
       })
-      setMovieData(newArr);
+      setMovieTitles(newArr);
     };
   }
 
-  const getMovieDetails = async (value: any) => {
+  const getMovieDetails = async (titleId: string) => {
     setClicked(true);
-    const res = await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movie-details&imdb=${value.id}`, {
+    const res = await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movie-details&imdb=${titleId}`, {
       "method": "GET",
       "headers": {
-        "x-rapidapi-key": "Iet2yU2P8pmshxLBr3hzsEtNaWs7p1rJV9vjsniNKetVL1RRb3",
-        "x-rapidapi-host": "movies-tvshows-data-imdb.p.rapidapi.com"
+        "x-rapidapi-key": process.env.REACT_APP_RAPIDAPI_KEY as string,
+        "x-rapidapi-host": process.env.REACT_APP_RAPIDAPI_HOST as string,
       }
     })
     if (!res.ok) {
@@ -75,9 +76,9 @@ const MoviePage: React.FC = () => {
               </div>
             </>
           }
-          {movieData && !clicked && movieData.map((movie: any) => {
+          {movieTitles && !clicked && movieTitles.map((movie) => {
             return <div className="movie-title">
-              <ul id={movie.imdb_id} key={movie.imdb_id} onClick={((e) => getMovieDetails(e.target))}>{movie.title}</ul>
+              <ul id={movie.imdb_id} key={movie.imdb_id} onClick={() => getMovieDetails(movie.imdb_id)}>{movie.title}</ul>
             </div>
           })}
         </div>
