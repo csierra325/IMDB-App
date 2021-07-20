@@ -14,6 +14,7 @@ const MoviePage: React.FC = () => {
   }
 
   const getMovieInfo = async () => {
+    setClicked(false);
     const res = await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-by-title&title=${userInput}`, {
       "method": "GET",
       "headers": {
@@ -58,17 +59,22 @@ const MoviePage: React.FC = () => {
   return (
     <div className="content-area">
       <div className="movie-container">
-        <div className="header">
+        <div className="movie-subcontainer">
+
           <div className="title">Movie Finder</div>
-          <div className="subtitle">Search Your Movie Below</div>
-          <div className="search-container">
-            <input
-              type="text"
-              onChange={handleInput}
-              value={userInput}
-            />
-            <div className="btn" onClick={getMovieInfo}>Submit</div>
-          </div>
+          {!clicked &&
+            <>
+              <div className="subtitle">Search Your Movie Below</div>
+              <div className="search-container">
+                <input
+                  type="text"
+                  onChange={handleInput}
+                  value={userInput}
+                />
+                <div className="btn" onClick={getMovieInfo}>Submit</div>
+              </div>
+            </>
+          }
           {movieData && !clicked && movieData.map((movie: any) => {
             return <div className="movie-title">
               <ul id={movie.imdb_id} key={movie.imdb_id} onClick={((e) => getMovieDetails(e.target))}>{movie.title}</ul>
@@ -79,13 +85,16 @@ const MoviePage: React.FC = () => {
         {errorMessage.length > 1 && <div>{errorMessage}</div>}
 
         {clicked &&
-          <div className="result-container">
-            <div>Title: {movieDetails.title}</div>
-            <div>Year: {movieDetails.year}</div>
-            <div>Directors: {movieDetails.directors}</div>
-            <div>Description: {movieDetails.description}</div>
-            <div>Countries: {movieDetails.countries}</div>
-          </div>
+          <>
+            <div className="btn back" onClick={getMovieInfo}> Back To Titles</div>
+            <div className="result-container">
+              <div className="title">{movieDetails.title}</div>
+              <div className="detail">Year: {movieDetails.year}</div>
+              <div className="detail">Directors: {movieDetails.directors}</div>
+              <div className="detail">Description: {movieDetails.description}</div>
+              <div className="detail">Countries: {movieDetails.countries}</div>
+            </div>
+          </>
         }
       </div>
     </div>
