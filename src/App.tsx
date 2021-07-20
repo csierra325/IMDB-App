@@ -4,7 +4,7 @@ import MoviePage from './components/MoviePage/MoviePage'
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" >
       <MoviePage />
     </div>
   );
