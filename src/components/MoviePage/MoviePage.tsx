@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { IMovieDetails, IMovieTitles } from '../../Interfaces';
 import './MoviePage.css';
 import sleepingCat from '../../images/sleepyCat.gif';
-import placeholder from '../../images/moviePlaceholder.png';
+import placeholder from '../../images/placeholder.png';
+import star from '../../images/star.png';
+import film from '../../images/filmWhite.png';
 
 const MoviePage: React.FC = () => {
   const [movieTitles, setMovieTitles] = useState<IMovieTitles[]>([]);
@@ -18,14 +20,14 @@ const MoviePage: React.FC = () => {
     setUserInput(input.toLowerCase());
   }
 
-  const getMovieInfo = async () => {
+  const getMovieTitles = async () => {
     setLoading(true);
     setClicked(false);
     setErrorMessage('');
     setMovieDetails({});
     await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-by-title&title=${userInput}`, {
-      method: "GET",
-      headers: {
+      "method": "GET",
+      "headers": {
         "x-rapidapi-key": process.env.REACT_APP_RAPIDAPI_KEY as string,
         "x-rapidapi-host": process.env.REACT_APP_RAPIDAPI_HOST as string,
       }
@@ -75,7 +77,6 @@ const MoviePage: React.FC = () => {
     })
       .then(res => res.json())
       .then((data) => {
-        console.log('poster' + data.poster);
         setMovieImage(data.poster);
       })
       .catch(err => {
@@ -88,7 +89,7 @@ const MoviePage: React.FC = () => {
     <div className="content-area">
       <div className="movie-container">
         <div className="movie-subcontainer">
-          <div className="title">Movie Mania</div>
+          <div className="title">Movie Mania<span><img className="filmIcon" src={film} alt="film icon" /></span></div>
           {!clicked &&
             <>
               <div className="subtitle">Search Your Movie Below</div>
@@ -98,7 +99,7 @@ const MoviePage: React.FC = () => {
                   onChange={handleInput}
                   value={userInput}
                 />
-                <button className="btn" disabled={loading} onClick={getMovieInfo}>Submit</button>
+                <button className="btn" disabled={loading} onClick={getMovieTitles}>Submit</button>
               </div>
             </>
           }
@@ -112,25 +113,34 @@ const MoviePage: React.FC = () => {
           <div className="error-message">{errorMessage}</div>
           <img className="submitted-img" src={sleepingCat} alt="failed requests sleeping cat" />
         </div>}
-        {clicked && <div className="btn back" onClick={getMovieInfo}> Back To Titles</div>}
+        {clicked && <div className="btn back" onClick={getMovieTitles}> Back To Titles</div>}
         {clicked && movieDetails.title &&
-          <div className="result-container">
-            {movieImage.length > 1 && <img src={movieImage} alt="movie poster" />}
-            {movieImage.length < 1 && <img src={placeholder} alt="movie poster" />}
-            <div className="result-details">
-              <div className="detail"><span className="result-title">Title:</span> {movieDetails.title}</div>
-              <div className="detail-unborder"><span className="result-title">Year: </span>{movieDetails.year}</div>
-              <div className="detail"><span className="result-title">Genres: </span>{movieDetails.genres?.map((genre) => <span>{genre}, </span>)}</div>
-              <div className="detail-unborder"><span className="result-title">Directors: </span>{movieDetails.directors?.map((director) => <span>{director}, </span>)}</div>
-              <div className="detail"><span className="result-title">Description:</span> {movieDetails.description}</div>
-              <div className="detail-unborder"><span className="result-title">Countries:</span> {movieDetails.countries?.map((country) => <span>{country}, </span>)}</div>
-              <div className="detail-unborder"><span className="result-title">Lanuages:</span> {movieDetails.language?.map((language) => <span>{language}, </span>)}</div>
-              <div className="detail-unborder"><span className="result-title">Release Date:</span> {movieDetails.release_date}</div>
-
+          <>
+            <div className="result-container">
+              {movieImage.length > 1 && <img className="poster" src={movieImage} alt="movie poster" />}
+              {movieImage.length < 1 && <img className="poster" src={placeholder} alt="movie poster" />}
+              <div className="result-details">
+                <div className="detail-unborder"><span className="result-title">Title:</span> {movieDetails.title}</div>
+                <div className="detail"><span className="result-title">Year: </span>{movieDetails.year}</div>
+                <div className="detail-unborder"><span className="result-title">Genres: </span>{movieDetails.genres?.map((genre) => <span>{genre}, </span>)}</div>
+                <div className="detail"><span className="result-title">Directors: </span>{movieDetails.directors?.map((director) => <span>{director}, </span>)}</div>
+                <div className="detail"><span className="result-title">Countries:</span> {movieDetails.countries?.map((country) => <span>{country}, </span>)}</div>
+                <div className="detail-unborder"><span className="result-title">Lanuage:</span> {movieDetails.language?.map((language) => <span>{language}, </span>)}</div>
+                <div className="detail"><span className="result-title">Release Date:</span> {movieDetails.release_date}</div>
+                <div className="detail"><span className="result-title">Rated:</span> {movieDetails.rated}</div>
+                <div className="detail"><span className="result-title">Vote Count:</span> {movieDetails.vote_count}</div>
+                <div className="detail"><span className="result-title">IMDb Rating:</span> <img className="star" src={star} alt="star icon" />{movieDetails.imdb_rating}/10</div>
+                <div className="detail"><span className="result-title">Popularity:</span> {movieDetails.popularity}</div>
+              </div>
             </div>
-          </div>
+            <div className="additional-detail">
+              <div><span className="result-title">Description:</span> {movieDetails.description}</div>
+              <div className="additional-title"><span className="result-title">Stars:</span> {movieDetails.stars?.map((star) => <span>{star}, </span>)}</div>
+            </div>
+          </>
         }
       </div>
+      <div className="image-copyright">Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
     </div>
   )
 }
