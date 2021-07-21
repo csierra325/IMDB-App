@@ -10,6 +10,7 @@ const MoviePage: React.FC = () => {
   const [movieTitles, setMovieTitles] = useState<IMovieTitles[]>([]);
   const [movieDetails, setMovieDetails] = useState<Partial<IMovieDetails>>({});
   const [movieImage, setMovieImage] = useState<string>('');
+  const [movieTitleId, setMovieTitleId] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [clicked, setClicked] = useState<boolean>(false);
@@ -50,6 +51,7 @@ const MoviePage: React.FC = () => {
 
   const getMovieDetails = async (titleId: string) => {
     setClicked(true);
+    setMovieTitleId(titleId);
     await fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movie-details&imdb=${titleId}`, {
       "method": "GET",
       "headers": {
@@ -60,7 +62,6 @@ const MoviePage: React.FC = () => {
     })
       .then(res => res.json())
       .then((data) => {
-        console.log(data);
         setMovieDetails(data);
       })
       .catch(err => {
@@ -82,6 +83,31 @@ const MoviePage: React.FC = () => {
       .catch(err => {
         console.error(err);
         setErrorMessage('We cannot process your request at this time')
+      });
+  }
+
+  const getSimilarTitles = async (titleId: string) => {
+    setClicked(false);
+    fetch(`https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-similar-movies&imdb=${titleId}&page=1`, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-key": process.env.REACT_APP_RAPIDAPI_KEY as string,
+        "x-rapidapi-host": process.env.REACT_APP_RAPIDAPI_HOST as string,
+      }
+    })
+      .then(res => res.json())
+      .then((data) => {
+        const newArr = data.movie_results.map((res: string[]) => {
+          return res;
+        })
+        setMovieTitles(newArr);
+      })
+      .catch(err => {
+        console.error(err);
+        setErrorMessage('We cannot process your request at this time')
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }
 
@@ -113,7 +139,9 @@ const MoviePage: React.FC = () => {
           <div className="error-message">{errorMessage}</div>
           <img className="submitted-img" src={sleepingCat} alt="failed requests sleeping cat" />
         </div>}
-        {clicked && <div className="btn back" onClick={getMovieTitles}> Back To Titles</div>}
+        {clicked && <button className="btn back" onClick={getMovieTitles}> Back To Titles</button>}
+        {clicked && <button className="btn similar" disabled={loading} onClick={() => getSimilarTitles(movieTitleId)}> See Similar Titles</button>}
+
         {clicked && movieDetails.title &&
           <>
             <div className="result-container">
